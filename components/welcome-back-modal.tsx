@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { useInterviewStore } from "@/lib/store"
+import { useAuthStore } from "@/lib/auth-store"
 import { Clock, User, Sparkles, Play, RotateCcw } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
@@ -11,11 +12,19 @@ export default function WelcomeBackModal() {
   const [isOpen, setIsOpen] = useState(false)
   const [hasCheckedOnMount, setHasCheckedOnMount] = useState(false)
   const { candidates, setCurrentCandidate, setActiveTab, deleteCandidate } = useInterviewStore()
+  const { user } = useAuthStore()
+
+  // Get candidates that belong to the current user only
+  const getUserCandidates = () => {
+    if (!user || user.role !== 'interviewee') return []
+    return candidates.filter(candidate => candidate.userId === user.id)
+  }
 
   useEffect(() => {
     // Only check for unfinished sessions on initial page load, not on every candidate update
-    if (!hasCheckedOnMount) {
-      const unfinishedCandidate = candidates.find(
+    if (!hasCheckedOnMount && user) {
+      const userCandidates = getUserCandidates()
+      const unfinishedCandidate = userCandidates.find(
         (c) => {
           // Only show modal for candidates who have actually started (not just uploaded)
           return (c.status === "paused" || c.status === "interviewing") && 
@@ -28,10 +37,11 @@ export default function WelcomeBackModal() {
       }
       setHasCheckedOnMount(true)
     }
-  }, [candidates, hasCheckedOnMount])
+  }, [candidates, hasCheckedOnMount, user])
 
   const handleContinue = () => {
-    const unfinishedCandidate = candidates.find(
+    const userCandidates = getUserCandidates()
+    const unfinishedCandidate = userCandidates.find(
       (c) => {
         return (c.status === "paused" || c.status === "interviewing") && 
                (c.currentQuestion > 0 || c.answers.length > 0 || c.startTime)
@@ -46,8 +56,9 @@ export default function WelcomeBackModal() {
   }
 
   const handleStartNew = () => {
-    // Clean up any unfinished sessions
-    const unfinishedCandidates = candidates.filter(
+    // Clean up any unfinished sessions for this user only
+    const userCandidates = getUserCandidates()
+    const unfinishedCandidates = userCandidates.filter(
       (c) => {
         return (c.status === "paused" || c.status === "interviewing") && 
                (c.currentQuestion > 0 || c.answers.length > 0 || c.startTime)
@@ -63,7 +74,8 @@ export default function WelcomeBackModal() {
     setIsOpen(false)
   }
 
-  const unfinishedCandidate = candidates.find(
+  const userCandidates = getUserCandidates()
+  const unfinishedCandidate = userCandidates.find(
     (c) => {
       return (c.status === "paused" || c.status === "interviewing") && 
              (c.currentQuestion > 0 || c.answers.length > 0 || c.startTime)

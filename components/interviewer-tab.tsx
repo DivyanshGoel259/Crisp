@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useInterviewStore } from "@/lib/store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,13 +9,12 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Users, Search, Eye, Trash2, Clock, Award, TrendingUp, TrendingDown, Minus, Sparkles } from "lucide-react"
-import CandidateDetailModal from "@/components/candidate-detail-modal"
 
 export default function InterviewerTab() {
+  const router = useRouter()
   const { candidates, deleteCandidate, loadCandidatesFromSupabase, isLoading } = useInterviewStore()
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("score")
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null)
 
   // Load candidates from Supabase when component mounts
   useEffect(() => {
@@ -233,7 +233,7 @@ export default function InterviewerTab() {
                     {candidate.endTime && <span>Completed: {new Date(candidate.endTime).toLocaleDateString()}</span>}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setSelectedCandidateId(candidate.id)}>
+                    <Button variant="outline" size="sm" onClick={() => router.push(`/candidate/${candidate.id}`)}>
                       <Eye className="h-4 w-4 mr-1" />
                       View Details
                     </Button>
@@ -253,14 +253,6 @@ export default function InterviewerTab() {
         </div>
       )}
 
-      {/* Candidate Detail Modal */}
-      {selectedCandidateId && (
-        <CandidateDetailModal
-          candidateId={selectedCandidateId}
-          isOpen={!!selectedCandidateId}
-          onClose={() => setSelectedCandidateId(null)}
-        />
-      )}
     </div>
   )
 }

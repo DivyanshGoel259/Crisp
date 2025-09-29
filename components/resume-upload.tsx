@@ -36,8 +36,21 @@ export default function ResumeUpload() {
         const hasBasicInfo = candidateInfo.name && candidateInfo.email && candidateInfo.phone
         const hasMissingInfo = candidateInfo.missingInfo && candidateInfo.missingInfo.length > 0
         
+        // Get current user ID
+        let currentUserId = '';
+        try {
+          const userStr = localStorage.getItem('currentUser');
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            currentUserId = user.id;
+          }
+        } catch (error) {
+          console.error('Failed to get current user ID:', error);
+        }
+
         // Create candidate with extracted info
         const candidateId = addCandidate({
+          userId: currentUserId,
           name: candidateInfo.name || "",
           email: candidateInfo.email || "",
           phone: candidateInfo.phone || "",

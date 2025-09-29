@@ -16,6 +16,7 @@ export interface InterviewSession {
 
 export interface Candidate {
   id: string
+  userId: string // Link to users table
   name: string
   email: string
   phone: string
@@ -96,9 +97,23 @@ export const useInterviewStore = create<InterviewStore>()(
       addCandidate: (candidateData) => {
         const id = `candidate_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        
+        // Get current user ID from localStorage
+        let currentUserId = '';
+        try {
+          const userStr = localStorage.getItem('currentUser');
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            currentUserId = user.id;
+          }
+        } catch (error) {
+          console.error('Failed to get current user ID:', error);
+        }
+
         const candidate: Candidate = {
           ...candidateData,
           id,
+          userId: currentUserId || candidateData.userId, // Ensure userId is set
           currentQuestion: 0,
           questions: [],
           answers: [],
@@ -227,6 +242,7 @@ export const useInterviewStore = create<InterviewStore>()(
             // Convert Supabase data to Candidate format
             const candidates: Candidate[] = data.map((row: any) => ({
               id: row.id,
+              userId: row.user_id, // Link to users table
               name: row.name,
               email: row.email,
               phone: row.phone,
@@ -265,6 +281,7 @@ export const useInterviewStore = create<InterviewStore>()(
         try {
           const candidateData = {
             id: candidate.id,
+            user_id: candidate.userId, // Link to users table
             name: candidate.name,
             email: candidate.email,
             phone: candidate.phone,

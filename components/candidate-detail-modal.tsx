@@ -64,9 +64,9 @@ export default function CandidateDetailModal({ candidateId, isOpen, onClose }: C
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh]">
+      <DialogContent className="max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <Sparkles className="h-6 w-6 text-primary" />
               <span>{candidate.name || "Unnamed Candidate"}</span>
@@ -83,7 +83,7 @@ export default function CandidateDetailModal({ candidateId, isOpen, onClose }: C
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[70vh]">
+        <ScrollArea className="max-h-[70vh] ">
           <div className="space-y-6">
             {/* Personal Information */}
             <Card>

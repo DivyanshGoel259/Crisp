@@ -63,18 +63,32 @@ export default function InterviewChat({ candidate }: InterviewChatProps) {
   }, [candidate.status])
 
   useEffect(() => {
-    if (currentQuestion) {
+    if (currentQuestion && candidate.status === "interviewing") {
       updateCandidate(candidate.id, { timeRemaining })
     }
-  }, [timeRemaining])
+  }, [timeRemaining, candidate.status])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [candidate.questions, candidate.answers])
 
+  // Stop timer and cleanup effects when interview is completed
+  useEffect(() => {
+    if (candidate.status === "completed") {
+      resetTimer(0)
+      setIsEvaluating(false)
+    }
+  }, [candidate.status, resetTimer])
+
   const initializeQuestions = async () => {
     if (isInitializing) {
       console.log("[v0] Already initializing questions, skipping...")
+      return
+    }
+
+    // Don't initialize if interview is already completed
+    if (candidate.status === "completed") {
+      console.log("[v0] Interview already completed, skipping initialization...")
       return
     }
 
