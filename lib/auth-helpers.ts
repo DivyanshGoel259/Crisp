@@ -52,7 +52,7 @@ export async function getCandidatesForUser(userId: string, role: string) {
       .select('*')
 
     // If interviewer, can see all candidates
-    // If interviewee, only their own candidates
+   // If interviewee, only their own candidates
     if (role === 'interviewee') {
       query = query.eq('user_id', userId)
     }
